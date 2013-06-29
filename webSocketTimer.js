@@ -12,9 +12,14 @@ function WebSocketTimer(options){
 
 WebSocketTimer.prototype.addWebSocket = function(webSocket){
   this.webSocket = webSocket
+  var that = this
+  webSocket.on('close', function(){
+    console.log('stopping the timer')
+    that.stop()
+  })
 }
 
-WebSocketTimer.prototype.startTimer = function(){
+WebSocketTimer.prototype.start = function(){
   var that = this
   this.timerHandle = setInterval( function(){
     that.callback.call(that)
@@ -22,13 +27,20 @@ WebSocketTimer.prototype.startTimer = function(){
 
 }
 
+WebSocketTimer.prototype.stop = function(){
+  clearInterval(this.timerHandle)
+}
+
 WebSocketTimer.prototype.callback = function(){
   this.curTime += this.increment
   console.log(this.curTime)
+  if(this.webSocket){
+    this.webSocket.send(this.curTime)
+  }
   if(this.curTime == this.stopTime){
-    clearInterval(this.timerHandle)
+    this.stop()
+    
   }
 }
 
-thing = new WebSocketTimer({stopTime:10})
-thing.startTimer()
+module.exports = WebSocketTimer

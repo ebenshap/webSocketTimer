@@ -1,0 +1,37 @@
+<html>
+<head>
+<script>
+
+window.onload=function(){
+  var websocket = new WebSocket('ws://localhost:3000')
+  var timer = document.getElementById('timer')
+ 
+  websocket.onmessage = function(event){
+    timer.getElementsByTagName('p')[0].innerHTML = event.data
+  }
+  
+  
+  
+}
+
+</script>
+<style>
+#timer{
+  width:30px;
+  height:30px;
+  border:2px solid black
+}
+
+#timer p{
+  margin:0
+}
+
+</style>
+</head>
+<body>
+<p>Hello</p>
+<div id='timer'>
+<p>0</p>
+</div>
+</body>
+</html>
