@@ -5,13 +5,16 @@
 window.onload=function(){
   var websocket = new WebSocket('ws://localhost:3000')
   var timer = document.getElementById('timer')
- 
+  console.log('this is the timer')
+  console.log(timer)
   websocket.onmessage = function(event){
-    timer.getElementsByTagName('p')[0].innerHTML = event.data
-  }
-  
-  
-  
+    var data = JSON.parse(event.data)
+    if(data.timer){
+      document.getElementById('timeDisplay').innerHTML = data.timer
+    }else if(data.status){
+      document.getElementById('status').innerHTML = data.status
+    }
+  } 
 }
 
 </script>
@@ -31,7 +34,8 @@ window.onload=function(){
 <body>
 <p>Hello</p>
 <div id='timer'>
-<p>0</p>
+<p id='timeDisplay'>0</p>
 </div>
+<p id='status'></p>
 </body>
 </html>

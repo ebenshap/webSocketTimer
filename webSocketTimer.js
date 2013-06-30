@@ -1,3 +1,7 @@
+/**
+ * The timer is intended for a multiplayer game where you want to limit how much time a person has to submit their command
+*/
+
 function WebSocketTimer(options){
 
   options = options || {}
@@ -9,6 +13,7 @@ function WebSocketTimer(options){
   this.webSocket = null
   this.timerHandle = null
   this.endFunc = options.endFunc || null
+  this.curPlayer = null
 }
 
 WebSocketTimer.prototype.addWebSocket = function(webSocket){
@@ -20,8 +25,9 @@ WebSocketTimer.prototype.addWebSocket = function(webSocket){
   })
 }
 
-WebSocketTimer.prototype.reset = function(webSocket){
+WebSocketTimer.prototype.reset = function(webSocket, currentPlayer){
   this.curTime = this.startTime
+  this.curPlayer = currentPlayer
   this.addWebSocket(webSocket)
 }
 
@@ -42,7 +48,7 @@ WebSocketTimer.prototype.callback = function(){
   this.curTime += this.increment
   console.log(this.curTime)
   if(this.webSocket){
-    this.webSocket.send(this.curTime)
+    this.webSocket.send(JSON.stringify({timer:this.curTime}))
   }
   if(this.curTime == this.stopTime){
     if(this.endFunc){

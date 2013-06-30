@@ -10,12 +10,17 @@ var server = http.createServer(function(req, res){
   })
 })
 
-var wsServer= new WebSocketServer({ httpServer: server })  
+var wsServer= new WebSocketServer({ 
+  httpServer: server
+})  
 
 wsServer.on('request', function(request){
 
   var connection= request.accept(null, request.origin) || null
-  var timer = new WebSocketTimer({stopTime:10})
+  var timer = new WebSocketTimer({stopTime:10, 
+  endFunc:function(){
+    this.webSocket.send( JSON.stringify({status:'that\'s all'}) )  
+  } })
   timer.addWebSocket(connection)
   //start the timer as soon as the connection is established
   timer.start() 
