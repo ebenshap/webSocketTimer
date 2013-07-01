@@ -1,19 +1,35 @@
+var util = require('util')
+
 /**
  * The timer is intended for a multiplayer game where you want to limit how much time a person has to submit their command
 */
 
-function WebSocketTimer(options){
 
+function WebSocketTimer(options){
   options = options || {}
-  this.startTime= options.startTime || 0 
-  this.frequency= 1000 //send the time every second
-  this.increment = options.increment  || 1
+  
+  var defaults={
+    startTime:0,
+    stopTime:0,
+    increment:1,
+    endFunc:null
+  }
+  
+  util._extend(defaults, options)
+  util._extend(this, defaults)
+  
+  //extends the defaults
   this.curTime = this.startTime 
-  this.stopTime = options.stopTime || 0
+  this.frequency= 1000 //send the time every second
   this.webSocket = null
   this.timerHandle = null
-  this.endFunc = options.endFunc || null
+  
   this.curPlayer = null
+}
+
+//allow to change the settings midway through 
+WebSocketTimer.prototype.changeSettings(options){
+  util._extend(this, options)
 }
 
 WebSocketTimer.prototype.addWebSocket = function(webSocket){
@@ -47,8 +63,16 @@ WebSocketTimer.prototype.stop = function(){
 WebSocketTimer.prototype.callback = function(){
   this.curTime += this.increment
   console.log(this.curTime)
+  
   if(this.webSocket){
-    this.webSocket.send(JSON.stringify({timer:this.curTime}))
+    //allow to send to  a group of websockets too
+    if(Object.prototype.toString.call( this.webSocket ) === '[object Array]'){
+      for(var i=0; i<this.webSocket.length; i++){
+        this.webSocket[i].send(JSON.stringify({timer:this.curTime}))
+      }
+    }else{
+      this.webSocket.send(JSON.stringify({timer:this.curTime}))
+    }
   }
   if(this.curTime == this.stopTime){
     if(this.endFunc){
@@ -57,5 +81,7 @@ WebSocketTimer.prototype.callback = function(){
     this.stop()
   }
 }
+
+WebSocketTimer
 
 module.exports = WebSocketTimer
